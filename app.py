@@ -54,12 +54,12 @@ class PullRequest(db.Document):
                 'reviewed': self.reviewed, 'reviewed_at': self.reviewed_at}
 
 
-class FreezeTime(db.Document):
+"""class FreezeTime(db.Document):
     curr_time = db.DateTimeField()
     freeze_datetime = db.DateTimeField()
 
     def to_json(self):
-        return {'freeze_datetime': self.freeze_datetime}
+        return {'freeze_datetime': self.freeze_datetime}"""
 
 
 # CONTROLLER
@@ -158,8 +158,13 @@ def get_all_prs() -> list:
 
 
 def add_pr(data: json) -> dict:
-    if PullRequest.objects(pr_id=data['id'], problem_id=data['problem_id'], nickname=data['nickname'],
-                           bonus_points=data['bonus_points'], bonus_comment=data['bonus_comment']).first():
+    user = User.objects(nickname=data['nickname']).first()
+    if not user:
+        return {'error': 'user not found'}
+    problem = Problem.objects(problem_id=data['problem_id']).first()
+    if not problem:
+        return {'error': 'problem not found'}
+    if PullRequest.objects(pr_id=data['id']).first():
         return {'error': 'pr present'}
     pr = PullRequest(pr_id=data['id'], problem_id=data['problem_id'], nickname=data['nickname'],
                      bonus_points=data['bonus_points'], bonus_comment=data['bonus_comment'],
@@ -169,11 +174,11 @@ def add_pr(data: json) -> dict:
 
 
 def edit_pr(pr_id: str, data: json) -> dict:
-    pr = PullRequest.objects(pr_id=pr_id, reviewed=False).first()
+    pr = PullRequest.objects(pr_id=pr_id).first()
     if not pr:
         return {'error': 'pr not found'}
     pr.update(problem_id=data['problem_id'],
-              bonus_points=data['bonus_points'], bonus_comment=data['bonus_comment'], reviewed=True,
+              bonus_points=data['bonus_points'], bonus_comment=data['bonus_comment'], reviewed=data['reviewed'],
               reviewed_at=datetime.datetime.now())
     return PullRequest.objects(pr_id=pr_id).first().to_json()
 
@@ -368,8 +373,8 @@ def view_set_freeze_ranking():
 
 @app.route('/github', methods=['POST'])
 def view_github():
-    """if not verify_github_headers(request.headers.get('X-Hub-Signature-256'), request.data):
-        return jsonify({'error': 'unauthorized'}), 403"""
+    if not verify_github_headers(request.headers.get('X-Hub-Signature-256'), request.data):
+        return jsonify({'error': 'unauthorized'}), 403
     data = json.loads(request.data)
     github(data)
     return jsonify({'response': 'ok'}), 200
