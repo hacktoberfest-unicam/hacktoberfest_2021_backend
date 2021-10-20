@@ -34,8 +34,7 @@ class Problem(db.Document):
 
     def to_json(self):
         return {'id': self.problem_id, 'name': self.name, 'level_name': self.level_name,
-                'base_points': self.base_points,
-                'multiplier': self.multiplier, 'description': self.description}
+                'base_points': self.base_points, 'multiplier': self.multiplier, 'description': self.description}
 
 
 class PullRequest(db.Document):
@@ -59,7 +58,8 @@ class PullRequest(db.Document):
     freeze_datetime = db.DateTimeField()
 
     def to_json(self):
-        return {'freeze_datetime': self.freeze_datetime}"""
+        return {'freeze_datetime': self.freeze_datetime}
+"""
 
 
 # CONTROLLER
@@ -358,7 +358,7 @@ def view_remove_pr(pr_id):
     return jsonify(remove_pr(pr_id))
 
 
-@app.route('/api/ranking', methods=['GET'])
+@app.route('/public/ranking', methods=['GET'])
 def view_get_current_ranking():
     return jsonify(get_ranking())
 
