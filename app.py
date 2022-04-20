@@ -199,8 +199,9 @@ def get_ranking() -> list:
     users = get_all_users()
     problems = get_all_problems()
     prs = get_all_prs()
-    time_limit = datetime.datetime(2021, 10, 20, 15, 00, 00)  # get_freeze_ranking_time()
-    prs = [_ for _ in filter(lambda pr: pr['merge_time'] < time_limit and pr['reviewed'], prs)]
+    # time_limit = datetime.datetime(2021, 10, 20, 15, 00, 00)  # get_freeze_ranking_time()
+    # prs = [_ for _ in filter(lambda pr: pr['merge_time'] < time_limit and pr['reviewed'], prs)]
+    prs = [_ for _ in filter(lambda pr: pr['reviewed'], prs)]
 
     out = []
     for user in users:
